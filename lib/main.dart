@@ -35,22 +35,7 @@ class _LogoAppState extends State<LogoApp> with SingleTickerProviderStateMixin {
       duration: Duration(seconds: 2),
     );
 
-    animation = Tween<double>(
-      begin: 0,
-      end: 300,
-    ).animate(controller)
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          controller.reverse();
-        } else if (status == AnimationStatus.dismissed) {
-          controller.forward();
-        }
-      });
-
-    animation2 = Tween<double>(
-      begin: 0,
-      end: 150,
-    ).animate(controller)
+    animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut)
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           controller.reverse();
@@ -70,17 +55,11 @@ class _LogoAppState extends State<LogoApp> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        GrowTransition(
-          child: LogoWidget(),
-          animation: animation,
-        ),
-        GrowTransition(
-          child: LogoWidget(),
-          animation: animation2,
-        )
-      ],
+    return Center(
+      child: DanielTransition(
+        child: LogoWidget(),
+        animation: animation,
+      ),
     );
   }
 }
@@ -94,11 +73,13 @@ class LogoWidget extends StatelessWidget {
   }
 }
 
-class GrowTransition extends StatelessWidget {
+class DanielTransition extends StatelessWidget {
   final Widget child;
   final Animation<double> animation;
+  final Tween sizeTween = Tween<double>(begin: 0, end: 300);
+  final Tween opacityTween = Tween<double>(begin: 0.1, end: 1);
 
-  GrowTransition({this.animation, this.child});
+  DanielTransition({this.animation, this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -106,10 +87,13 @@ class GrowTransition extends StatelessWidget {
       child: AnimatedBuilder(
         animation: animation,
         builder: (context, child) {
-          return Container(
-            height: animation.value,
-            width: animation.value,
-            child: child,
+          return Opacity(
+            opacity: opacityTween.evaluate(animation),
+            child: Container(
+              height: sizeTween.evaluate(animation),
+              width: sizeTween.evaluate(animation),
+              child: child,
+            ),
           );
         },
         child: child,
